@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  dev:
+    # Diz ao Docker para construir a imagem usando o Dockerfile.dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    # Mapeia a porta 5173 de dentro do contêiner para a 5173 do seu computador
+    ports:
+      - "5173:5173"
+    # A MÁGICA ACONTECE AQUI:
+    # Espelha o código do seu computador para dentro do contêiner.
+    # Qualquer mudança que você salvar no VS Code será refletida instantaneamente.
+    volumes:
+      - .:/app
+      # Adicionamos esta linha para evitar que a pasta node_modules local sobrescreva a do contêiner
+      - /app/node_modules
