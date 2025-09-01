@@ -40,7 +40,6 @@ export const getPessoas = async (filtros: FiltrosBusca): Promise<PaginatedRespon
     pagina: filtros.pagina || 0,
     porPagina: filtros.porPagina || 12,
     nome: filtros.nome || '',
-    status: filtros.status || 'DESAPARECIDO',
     faixaIdadeInicial: 0,
     faixaIdadeFinal: 120,
     sexo: '',
@@ -54,6 +53,7 @@ export const getPessoas = async (filtros: FiltrosBusca): Promise<PaginatedRespon
     throw error;
   }
 };
+
 export const getPersonById = async (id: number): Promise<Pessoa> => {
   try {
     const response = await api.get(`/pessoas/${id}`);
