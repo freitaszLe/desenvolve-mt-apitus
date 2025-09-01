@@ -1,10 +1,16 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useState } from 'react';
+
+export type SubmissionFormData = z.infer<typeof submissionSchema> & {
+  fotoUrl?: string | null;
+};
 
 interface SubmissionFormProps {
   personName: string;
   onClose: () => void;
+  onSave: (data: SubmissionFormData) => void; 
 }
 
 const submissionSchema = z.object({
@@ -13,18 +19,24 @@ const submissionSchema = z.object({
     message: "Data inválida. Use o formato DD/MM/AAAA.",
   }),
   localizacao: z.string().min(5, { message: "Por favor, informe um local (mínimo 5 caracteres)." }),
+  foto: z.any().optional(),
 });
 
-type SubmissionFormData = z.infer<typeof submissionSchema>;
 
-const SubmissionForm = ({ personName, onClose }: SubmissionFormProps) => {
+const SubmissionForm = ({ personName, onClose, onSave }: SubmissionFormProps) => {
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
   const { register, handleSubmit, formState: { errors }, control } = useForm<SubmissionFormData>({
     resolver: zodResolver(submissionSchema),
   });
 
   const handleFormSubmit = (data: SubmissionFormData) => {
-    console.log("DADOS DO FORMULÁRIO ENVIADOS:", data);
-    alert(`Obrigado! Sua informação sobre ${personName} foi registrada (verifique o console).`);
+    const dataToSave: SubmissionFormData = {
+      ...data,
+      fotoUrl: previewImage 
+    };
+    onSave(dataToSave);
+    alert(`Obrigado! Sua informação sobre ${personName} foi adicionada à página.`);
     onClose();
   };
   
@@ -39,20 +51,23 @@ const SubmissionForm = ({ personName, onClose }: SubmissionFormProps) => {
     return value;
   };
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const fileUrl = URL.createObjectURL(file);
+      setPreviewImage(fileUrl);
+    } else {
+      setPreviewImage(null);
+    }
+  };
+
   return (
-    <div 
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4"
-      onClick={onClose}
-    >
-      <div 
-        className="bg-dark-card border border-dark-border rounded-lg shadow-xl w-full max-w-lg p-6 md:p-8"
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4" onClick={onClose}>
+      <div className="bg-dark-card border border-dark-border rounded-lg shadow-xl w-full max-w-lg p-6 md:p-8" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-2xl font-bold text-white mb-1">Registrar Nova Informação</h2>
         <p className="text-text-muted mb-6">Sobre: <span className="font-semibold text-text-light">{personName}</span></p>
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-          {/* Campo Observações */}
           <div>
             <label htmlFor="observacoes" className="block text-sm font-semibold text-text-muted mb-1">Observações</label>
             <textarea 
@@ -65,7 +80,6 @@ const SubmissionForm = ({ personName, onClose }: SubmissionFormProps) => {
             {errors.observacoes && <p className="text-red-400 text-sm mt-1">{errors.observacoes.message}</p>}
           </div>
 
-          {/* Campo Data do Avistamento com Máscara */}
           <div>
             <label htmlFor="dataAvistamento" className="block text-sm font-semibold text-text-muted mb-1">Data em que foi visto(a)</label>
             <Controller
@@ -85,7 +99,6 @@ const SubmissionForm = ({ personName, onClose }: SubmissionFormProps) => {
             {errors.dataAvistamento && <p className="text-red-400 text-sm mt-1">{errors.dataAvistamento.message}</p>}
           </div>
 
-          {/* Campo Localização */}
           <div>
             <label htmlFor="localizacao" className="block text-sm font-semibold text-text-muted mb-1">Localização avistada</label>
             <input
@@ -98,16 +111,24 @@ const SubmissionForm = ({ personName, onClose }: SubmissionFormProps) => {
             {errors.localizacao && <p className="text-red-400 text-sm mt-1">{errors.localizacao.message}</p>}
           </div>
           
-          {/* Campo Anexar Fotos */}
           <div>
-            <label htmlFor="fotos" className="block text-sm font-semibold text-text-muted mb-1">Anexar fotos (opcional)</label>
+            <label htmlFor="fotos" className="block text-sm font-semibold text-text-muted mb-1">Anexar foto (opcional)</label>
             <input
               type="file"
               id="fotos"
-              multiple
+              accept="image/*"
+              {...register("foto")}
+              onChange={handleFileChange}
               className="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-900/50 file:text-blue-300 hover:file:bg-blue-900 transition"
             />
           </div>
+
+          {previewImage && (
+            <div className="mt-2">
+              <p className="text-sm font-semibold text-text-muted mb-2">Prévia da imagem:</p>
+              <img src={previewImage} alt="Prévia" className="rounded-lg max-h-40 mx-auto border border-dark-border" />
+            </div>
+          )}
 
           <div className="flex justify-end gap-4 pt-4">
             <button type="button" onClick={onClose} className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-6 rounded-md transition-colors">
