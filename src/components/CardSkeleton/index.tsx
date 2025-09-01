@@ -1,5 +1,3 @@
-import { motion } from 'framer-motion';
-
 const CardSkeleton = () => {
   return (
     <div className="bg-dark-card rounded-lg shadow-lg p-4 flex flex-col items-center border border-dark-border">

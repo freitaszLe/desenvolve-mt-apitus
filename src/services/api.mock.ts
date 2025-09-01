@@ -1,5 +1,8 @@
-// Importamos as mesmas interfaces do arquivo real para garantir consistência
-import type { Pessoa, PaginatedResponse, FiltrosBusca } from './api';
+import type { Pessoa as RealPessoa, PaginatedResponse as RealPaginatedResponse, FiltrosBusca as RealFiltrosBusca } from './api';
+
+export interface Pessoa extends RealPessoa {}
+export interface PaginatedResponse<T> extends RealPaginatedResponse<T> {}
+export interface FiltrosBusca extends RealFiltrosBusca {}
 
 // Uma base de dados maior para testar paginação e filtros
 const allMockPessoas: Pessoa[] = [

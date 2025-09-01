@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion'; // Precisamos importar o motion aqui também
+import { motion, type Easing } from 'framer-motion';
 import { type Pessoa } from '../../services/api.mock';
 
 // As "regras" da animação para um item individual
@@ -9,7 +9,7 @@ const cardVariants = {
     y: 0,
     opacity: 1,
     transition: {
-      ease: "easeOut",
+      ease: 'easeOut' as Easing, 
       duration: 0.3
     }
   }
@@ -22,7 +22,6 @@ interface CardProps {
 const Card = ({ pessoa }: CardProps) => {
   const status = pessoa.ultimaOcorrencia.status;
 
-  // A MUDANÇA ESTÁ AQUI. O elemento raiz agora é um <motion.div>
   return (
     <motion.div variants={cardVariants}>
       <Link to={`/pessoa/${pessoa.id}`} className="block group">
