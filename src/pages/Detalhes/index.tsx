@@ -2,27 +2,29 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getPersonById, type Pessoa } from '../../services/api.mock';
 import Navbar from '../../components/Navbar';
+import SubmissionForm from '../../components/SubmissionForm'; // 1. Importe o formulário
 
 const DetalhesPage = () => {
-  // O hook useParams nos dá acesso aos parâmetros da URL, como o ":id"
   const { id } = useParams<{ id: string }>();
-  // O hook useNavigate nos permite navegar entre páginas
   const navigate = useNavigate();
 
   const [pessoa, setPessoa] = useState<Pessoa | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // 2. Adicione este estado para controlar se o modal está aberto ou fechado
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    // Se não houver um ID na URL, não faz sentido continuar
     if (!id) {
+      setError("ID da pessoa não fornecido.");
       setLoading(false);
       return;
     }
 
     const carregarDadosDaPessoa = async () => {
       setLoading(true);
-      const pessoaId = parseInt(id, 10); // Converte o ID de texto para número
+      const pessoaId = parseInt(id, 10);
       const dados = await getPersonById(pessoaId);
       
       if (dados) {
@@ -34,7 +36,7 @@ const DetalhesPage = () => {
     };
 
     carregarDadosDaPessoa();
-  }, [id]); // O efeito roda sempre que o ID na URL mudar
+  }, [id]);
 
   if (loading) {
     return (
@@ -66,7 +68,7 @@ const DetalhesPage = () => {
       <Navbar />
       <main className="container mx-auto p-4 md:p-8">
         <button 
-          onClick={() => navigate(-1)} // navigate(-1) age como o botão "voltar" do navegador
+          onClick={() => navigate(-1)} 
           className="inline-flex items-center gap-2 text-text-muted hover:text-text-light mb-8 transition-colors"
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -125,12 +127,24 @@ const DetalhesPage = () => {
 
             <div className="border-b border-dark-border my-6"></div>
 
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition-colors duration-300">
+            {/* 3. Faça este botão abrir o modal */}
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition-colors duration-300"
+            >
               Registrar Nova Informação
             </button>
           </div>
         </div>
       </main>
+
+      {/* 4. Renderize o modal aqui embaixo se o estado isModalOpen for verdadeiro */}
+      {isModalOpen && (
+        <SubmissionForm 
+          personName={pessoa.nome} 
+          onClose={() => setIsModalOpen(false)} 
+        />
+      )}
     </>
   );
 };
