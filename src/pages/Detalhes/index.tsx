@@ -1,19 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getPersonById, type Pessoa } from '../../services/api.mock';
+import { getPersonById, type Pessoa } from '../../services/api'; 
 import Navbar from '../../components/Navbar';
-import SubmissionForm from '../../components/SubmissionForm'; // 1. Importe o formulário
+import SubmissionForm, { type SubmissionFormData } from '../../components/SubmissionForm';
 
 const DetalhesPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const [pessoa, setPessoa] = useState<Pessoa | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  // 2. Adicione este estado para controlar se o modal está aberto ou fechado
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const [informacoesAdicionais, setInformacoesAdicionais] = useState<SubmissionFormData[]>([]);
 
   useEffect(() => {
     if (!id) {
@@ -23,20 +22,28 @@ const DetalhesPage = () => {
     }
 
     const carregarDadosDaPessoa = async () => {
-      setLoading(true);
-      const pessoaId = parseInt(id, 10);
-      const dados = await getPersonById(pessoaId);
-      
-      if (dados) {
-        setPessoa(dados);
-      } else {
-        setError("Pessoa não encontrada.");
+      try {
+        setLoading(true);
+        const pessoaId = parseInt(id, 10);
+        const dados = await getPersonById(pessoaId);
+        if (dados) {
+          setPessoa(dados);
+        } else {
+          setError("Pessoa não encontrada.");
+        }
+      } catch (err) {
+        setError("Falha ao carregar os dados da pessoa.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     carregarDadosDaPessoa();
   }, [id]);
+
+  const handleSaveInfo = (novaInfo: SubmissionFormData) => {
+    setInformacoesAdicionais(infosAtuais => [...infosAtuais, novaInfo]);
+  };
 
   if (loading) {
     return (
@@ -52,7 +59,7 @@ const DetalhesPage = () => {
       <>
         <Navbar />
         <div className="text-red-500 text-center mt-20">
-          <p>{error || "Pessoa não encontrada."}</p>
+          <p>{error || "Ocorreu um erro inesperado."}</p>
           <button onClick={() => navigate('/')} className="mt-4 text-blue-400 hover:text-blue-300">
             Voltar para a busca
           </button>
@@ -61,7 +68,7 @@ const DetalhesPage = () => {
     );
   }
   
-  const status = pessoa.ultimaOcorrencia.status;
+  const status = pessoa.ultimaOcorrencia.dataLocalizacao || pessoa.ultimaOcorrencia.encontradoVivo ? 'LOCALIZADO' : 'DESAPARECIDO';
 
   return (
     <>
@@ -109,7 +116,7 @@ const DetalhesPage = () => {
               </div>
               <div>
                 <p className="text-text-muted text-sm font-semibold">SEXO</p>
-                <p className="text-text-light">{pessoa.sexo.charAt(0).toUpperCase() + pessoa.sexo.slice(1).toLowerCase()}</p>
+                <p className="text-text-light">{pessoa.sexo ? pessoa.sexo.charAt(0).toUpperCase() + pessoa.sexo.slice(1).toLowerCase() : 'Não informado'}</p>
               </div>
               <div>
                 <p className="text-text-muted text-sm font-semibold">DATA DO DESAPARECIMENTO</p>
@@ -127,7 +134,6 @@ const DetalhesPage = () => {
 
             <div className="border-b border-dark-border my-6"></div>
 
-            {/* 3. Faça este botão abrir o modal */}
             <button 
               onClick={() => setIsModalOpen(true)}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition-colors duration-300"
@@ -136,13 +142,32 @@ const DetalhesPage = () => {
             </button>
           </div>
         </div>
+        
+        {informacoesAdicionais.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-2xl font-bold text-white mb-4">Informações Adicionais Recebidas</h2>
+            <div className="space-y-4">
+              {informacoesAdicionais.map((info, index) => (
+                <div key={index} className="bg-dark-card border border-dark-border rounded-lg p-4 flex flex-col sm:flex-row gap-4 items-start">
+                  {info.fotoUrl && (
+                    <img src={info.fotoUrl} alt="Informação enviada" className="w-28 h-28 rounded-md object-cover border border-dark-border" />
+                  )}
+                  <div className="flex-1">
+                    <p className="text-text-muted"><strong className="text-text-light">Visto em:</strong> {info.dataAvistamento} | <strong className="text-text-light">Local:</strong> {info.localizacao}</p>
+                    <p className="text-text-light mt-2 italic">"{info.observacoes}"</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
-      {/* 4. Renderize o modal aqui embaixo se o estado isModalOpen for verdadeiro */}
       {isModalOpen && (
         <SubmissionForm 
           personName={pessoa.nome} 
           onClose={() => setIsModalOpen(false)} 
+          onSave={handleSaveInfo}
         />
       )}
     </>

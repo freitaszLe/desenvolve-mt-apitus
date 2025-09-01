@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { getPessoas, type Pessoa, type PaginatedResponse, type FiltrosBusca } from '../../services/api.mock';
+import { getPessoas, type Pessoa, type PaginatedResponse, type FiltrosBusca } from '../../services/api';
 import Card from '../../components/Card';
 import Navbar from '../../components/Navbar';
 import Pagination from '../../components/Pagination';
@@ -16,7 +16,7 @@ const HomePage = () => {
     pagina: 0,
     porPagina: 12,
     nome: '',
-    status: '',
+    status: 'DESAPARECIDO',
   });
 
   const carregarDados = useCallback(async () => {
@@ -26,7 +26,7 @@ const HomePage = () => {
       setResposta(novaResposta);
       setError(null);
     } catch (err) {
-      setError("Falha ao carregar os dados.");
+      setError("Falha ao carregar os dados. A API pode estar indisponível.");
       setResposta(null);
     } finally {
       setLoading(false);
@@ -37,6 +37,7 @@ const HomePage = () => {
     carregarDados();
   }, [carregarDados]);
 
+
   const handleSearch = (novosFiltros: FiltrosBusca) => {
     setFiltros(filtrosAtuais => ({
       ...filtrosAtuais,
@@ -45,7 +46,7 @@ const HomePage = () => {
       status: novosFiltros.status,
     }));
   };
-
+  
   const handlePageChange = (novaPagina: number) => {
     setFiltros(filtrosAtuais => ({
       ...filtrosAtuais,
@@ -57,13 +58,12 @@ const HomePage = () => {
   const paginaAtual = resposta?.number || 0;
   const totalPaginas = resposta?.totalPages || 0;
 
-  // Definindo as "regras" da animação do contêiner 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.05 // Atraso entre cada card
+        staggerChildren: 0.05
       }
     }
   };
@@ -86,7 +86,7 @@ const HomePage = () => {
           ) : (
             <>
               {pessoas.length === 0 ? (
-                <div className="text-center mt-20 text-slate-500">Nenhum registro encontrado...</div>
+                <div className="text-center mt-20 text-slate-500">Nenhum registro encontrado para os filtros informados.</div>
               ) : (
                 <motion.div 
                   className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
