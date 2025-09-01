@@ -6,7 +6,7 @@ interface PaginationProps {
 
 const Pagination = ({ paginaAtual, totalPaginas, onPageChange }: PaginationProps) => {
   if (totalPaginas <= 1) {
-    return null; // Não mostra a paginação se só tiver uma página
+    return null; 
   }
 
   const irParaPaginaAnterior = () => {
@@ -23,26 +23,27 @@ const Pagination = ({ paginaAtual, totalPaginas, onPageChange }: PaginationProps
 
   return (
     <div className="flex justify-center items-center gap-4 my-8">
-      <button
+    <button
         onClick={irParaPaginaAnterior}
         disabled={paginaAtual === 0}
-        className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+        className="bg-dark-card hover:bg-gray-cyber text-neon-red font-bold py-2 px-4 rounded-md transition-colors duration-300 disabled:opacity-30 disabled:cursor-not-allowed border border-dark-border hover:border-neon-red/50" // ALTERADO AQUI
+    >
         Anterior
-      </button>
+    </button>
 
-      <span className="text-slate-400">
+    <span className="text-text-muted text-lg">
         Página {paginaAtual + 1} de {totalPaginas}
-      </span>
+    </span>
 
-      <button
+    <button
         onClick={irParaProximaPagina}
         disabled={paginaAtual >= totalPaginas - 1}
-        className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
+        className="bg-dark-card hover:bg-gray-cyber text-neon-red font-bold py-2 px-4 rounded-md transition-colors duration-300 disabled:opacity-30 disabled:cursor-not-allowed border border-dark-border hover:border-neon-red/50" // ALTERADO AQUI
+    >
         Próximo
-      </button>
+    </button>
     </div>
+
   );
 };
 

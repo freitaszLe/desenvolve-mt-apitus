@@ -15,47 +15,49 @@ const SearchForm = ({ onSearch }: SearchFormProps) => {
   };
 
   return (
-    <div className="bg-slate-800 p-6 rounded-lg shadow-lg mb-8">
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    
+    <div className="bg-dark-card p-6 rounded-lg shadow-xl mb-8 border border-dark-border"> {/* ALTERADO AQUI */}
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Campo de Nome */}
         <div className="flex flex-col">
-          <label htmlFor="nome" className="mb-1 text-sm font-semibold text-slate-400">Nome</label>
-          <input
+        <label htmlFor="nome" className="mb-1 text-sm font-semibold text-text-muted">Nome</label> {/* ALTERADO AQUI */}
+        <input
             id="nome"
             type="text"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             placeholder="Digite o nome..."
-            className="bg-slate-700 border border-slate-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+            className="bg-gray-cyber border border-dark-border rounded-md p-2 text-text-light focus:outline-none focus:ring-2 focus:ring-neon-red focus:border-transparent" // ALTERADO AQUI
+        />
         </div>
 
         {/* Campo de Status */}
         <div className="flex flex-col">
-          <label htmlFor="status" className="mb-1 text-sm font-semibold text-slate-400">Status</label>
-          <select
+        <label htmlFor="status" className="mb-1 text-sm font-semibold text-text-muted">Status</label> {/* ALTERADO AQUI */}
+        <select
             id="status"
             value={status}
             onChange={(e) => setStatus(e.target.value as any)}
-            className="bg-slate-700 border border-slate-600 rounded-md p-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
+            className="bg-gray-cyber border border-dark-border rounded-md p-2 text-text-light focus:outline-none focus:ring-2 focus:ring-neon-red focus:border-transparent" // ALTERADO AQUI
+        >
             <option value="">Todos</option>
             <option value="DESAPARECIDO">Desaparecido</option>
             <option value="LOCALIZADO">Localizado</option>
-          </select>
+        </select>
         </div>
 
         {/* Botão de Busca */}
         <div className="flex items-end">
-          <button
+        <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-300"
-          >
+            className="w-full bg-neon-red hover:bg-neon-red-dark text-white font-bold py-2 px-4 rounded-md transition-colors duration-300 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-neon-red focus:ring-opacity-75" // ALTERADO AQUI
+        >
             Buscar
-          </button>
+        </button>
         </div>
-      </form>
+    </form>
     </div>
+
   );
 };
 

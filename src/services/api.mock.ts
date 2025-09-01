@@ -1,5 +1,8 @@
-// Importamos as mesmas interfaces do arquivo real para garantir consistência
-import type { Pessoa, PaginatedResponse, FiltrosBusca } from './api';
+import type { Pessoa as RealPessoa, PaginatedResponse as RealPaginatedResponse, FiltrosBusca as RealFiltrosBusca } from './api';
+
+export interface Pessoa extends RealPessoa {}
+export interface PaginatedResponse<T> extends RealPaginatedResponse<T> {}
+export interface FiltrosBusca extends RealFiltrosBusca {}
 
 // Uma base de dados maior para testar paginação e filtros
 const allMockPessoas: Pessoa[] = [
@@ -49,5 +52,20 @@ export const getPessoas = async (filtros: FiltrosBusca): Promise<PaginatedRespon
       console.log("MOCK API: Retornando dados", resposta);
       resolve(resposta);
     }, 700); // Atraso de 0.7 segundos
+  });
+};
+
+// Nova função para buscar uma pessoa pelo ID
+export const getPersonById = async (id: number): Promise<Pessoa | undefined> => {
+  console.log(`CHAMANDO MOCK API: getPersonById com o ID: ${id}`);
+
+  // Encontra a pessoa na nossa lista de mock
+  const pessoa = allMockPessoas.find(p => p.id === id);
+
+  return new Promise(resolve => {
+    setTimeout(() => {
+      console.log("MOCK API: Retornando dados da pessoa", pessoa);
+      resolve(pessoa);
+    }, 500); // Meio segundo de atraso para simular a rede
   });
 };
