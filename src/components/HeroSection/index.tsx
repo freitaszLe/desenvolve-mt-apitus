@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import SearchForm from '../SearchForm';
-import type { FiltrosBusca } from '../../services/api.mock';
+import type { FiltrosBusca } from '../../services/api';
 
 interface HeroSectionProps {
   onSearch: (filtros: FiltrosBusca) => void;
