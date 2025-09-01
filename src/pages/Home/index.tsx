@@ -7,65 +7,93 @@ import HeroSection from '../../components/HeroSection';
 import CardSkeleton from '../../components/CardSkeleton';
 import { motion } from 'framer-motion';
 
+const TAMANHO_DA_PAGINA = 12;
+
 const HomePage = () => {
-  const [resposta, setResposta] = useState<PaginatedResponse<Pessoa> | null>(null);
+
+  const [pessoasExibidas, setPessoasExibidas] = useState<Pessoa[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [paginaAtual, setPaginaAtual] = useState(0);
+  const [totalPaginas, setTotalPaginas] = useState(0);
+
   const [filtros, setFiltros] = useState<FiltrosBusca>({
-    pagina: 0,
-    porPagina: 12,
     nome: '',
-    status: 'DESAPARECIDO',
+    status: '',
   });
 
-  const carregarDados = useCallback(async () => {
+  const carregarDados = useCallback(async (paginaParaBuscar: number) => {
     try {
       setLoading(true);
-      const novaResposta = await getPessoas(filtros);
-      setResposta(novaResposta);
+      
+      let pessoasColetadas: Pessoa[] = [];
+      let paginaApi = paginaParaBuscar;
+      let totalPaginasApi = 0;
+
+      while (pessoasColetadas.length < TAMANHO_DA_PAGINA) {
+        const respostaApi = await getPessoas({ ...filtros, pagina: paginaApi, porPagina: TAMANHO_DA_PAGINA });
+        
+        if (!respostaApi || respostaApi.content.length === 0) {
+          totalPaginasApi = paginaApi; 
+          break;
+        }
+
+        totalPaginasApi = respostaApi.totalPages;
+        const dadosBrutos = respostaApi.content;
+        
+        const dadosFiltrados = dadosBrutos.filter(pessoa => {
+          const statusReal = pessoa.ultimaOcorrencia.dataLocalizacao || pessoa.ultimaOcorrencia.encontradoVivo 
+            ? 'LOCALIZADO' 
+            : 'DESAPARECIDO';
+          
+          const statusMatch = !filtros.status || statusReal === filtros.status;
+          const nomeMatch = !filtros.nome || pessoa.nome.toLowerCase().includes(filtros.nome.toLowerCase());
+
+          return statusMatch && nomeMatch;
+        });
+
+        pessoasColetadas.push(...dadosFiltrados);
+        
+        if (paginaApi >= totalPaginasApi - 1) {
+          break;
+        }
+        
+        paginaApi++; 
+      }
+      
+      setPessoasExibidas(pessoasColetadas.slice(0, TAMANHO_DA_PAGINA)); 
       setError(null);
+
     } catch (err) {
       setError("Falha ao carregar os dados. A API pode estar indisponível.");
-      setResposta(null);
+      setPessoasExibidas([]);
     } finally {
       setLoading(false);
     }
   }, [filtros]);
 
   useEffect(() => {
-    carregarDados();
-  }, [carregarDados]);
+
+    carregarDados(paginaAtual);
+  }, [carregarDados, paginaAtual]);
 
 
   const handleSearch = (novosFiltros: FiltrosBusca) => {
-    setFiltros(filtrosAtuais => ({
-      ...filtrosAtuais,
-      pagina: 0, 
+    setPaginaAtual(0); 
+    setFiltros({
       nome: novosFiltros.nome,
       status: novosFiltros.status,
-    }));
+    });
   };
   
   const handlePageChange = (novaPagina: number) => {
-    setFiltros(filtrosAtuais => ({
-      ...filtrosAtuais,
-      pagina: novaPagina,
-    }));
+    setPaginaAtual(novaPagina);
   };
-
-  const pessoas = resposta?.content || [];
-  const paginaAtual = resposta?.number || 0;
-  const totalPaginas = resposta?.totalPages || 0;
 
   const containerVariants = {
     hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.05
-      }
-    }
+    visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
   };
 
   return (
@@ -77,7 +105,7 @@ const HomePage = () => {
         <div className="mt-8">
           {loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {Array.from({ length: 12 }).map((_, index) => (
+              {Array.from({ length: TAMANHO_DA_PAGINA }).map((_, index) => (
                 <CardSkeleton key={index} />
               ))}
             </div>
@@ -85,7 +113,7 @@ const HomePage = () => {
             <div className="text-red-500 text-center mt-20">{error}</div>
           ) : (
             <>
-              {pessoas.length === 0 ? (
+              {pessoasExibidas.length === 0 ? (
                 <div className="text-center mt-20 text-slate-500">Nenhum registro encontrado para os filtros informados.</div>
               ) : (
                 <motion.div 
@@ -94,7 +122,7 @@ const HomePage = () => {
                   initial="hidden"
                   animate="visible"
                 >
-                  {pessoas.map((pessoa) => (
+                  {pessoasExibidas.map((pessoa) => (
                     <Card key={pessoa.id} pessoa={pessoa} />
                   ))}
                 </motion.div>
