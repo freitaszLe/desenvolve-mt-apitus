@@ -1,47 +1,58 @@
 import { Link } from 'react-router-dom';
-// Importamos o "molde" de Pessoa, pode ser do mock ou do api.ts, pois são iguais
-import { type Pessoa } from '../../services/api';
+import { motion } from 'framer-motion'; // Precisamos importar o motion aqui também
+import { type Pessoa } from '../../services/api.mock';
+
+// As "regras" da animação para um item individual
+const cardVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: {
+      ease: "easeOut",
+      duration: 0.3
+    }
+  }
+};
 
 interface CardProps {
   pessoa: Pessoa;
 }
 
 const Card = ({ pessoa }: CardProps) => {
-  // Pegamos o status de dentro da "ultimaOcorrencia" para facilitar o uso
   const status = pessoa.ultimaOcorrencia.status;
 
+  // A MUDANÇA ESTÁ AQUI. O elemento raiz agora é um <motion.div>
   return (
-    // AÇÃO 3: Adicionado <Link> para levar à página de detalhes da pessoa
-    <Link to={`/pessoa/${pessoa.id}`} className="block group">
-      <div 
-        className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center text-center
-                   h-full transition-all duration-300 hover:shadow-xl hover:scale-105"
-      >
-        <img
-          className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
-          // AJUSTE 1: Corrigido de 'pessoa.foto' para 'pessoa.urlFoto'
-          src={pessoa.urlFoto}
-          alt={`Foto de ${pessoa.nome}`}
-        />
-        <h2 className="text-xl font-bold mt-4 text-gray-800 group-hover:text-blue-600">
-          {pessoa.nome}
-        </h2>
-        <p className="text-gray-600">Idade: {pessoa.idade} anos</p>
-        
-        {/* Usamos o operador '&&' para só mostrar o status se ele existir */}
-        {status && (
-          <span className={`mt-4 px-3 py-1 rounded-full text-sm font-semibold ${
-            // AJUSTE 2: Corrigido de 'pessoa.status' para a variável 'status'
-            status === 'DESAPARECIDO' 
-              ? 'bg-red-200 text-red-800' 
-              : 'bg-green-200 text-green-800'
-          }`}>
-            {/* Exibe o status formatado (ex: "Desaparecido") */}
-            {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
-          </span>
-        )}
-      </div>
-    </Link>
+    <motion.div variants={cardVariants}>
+      <Link to={`/pessoa/${pessoa.id}`} className="block group">
+        <div className="bg-dark-card rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 p-4 flex flex-col items-center text-center h-full border border-dark-border hover:border-neon-red/50 relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-dark-card/50 to-transparent animate-pulse-slow pointer-events-none opacity-20"></div>
+
+          <img
+            className="w-28 h-28 rounded-full object-cover mb-4 border-2 border-dark-border group-hover:border-neon-red/70 transition-colors"
+            src={pessoa.urlFoto}
+            alt={`Foto de ${pessoa.nome}`}
+          />
+          <h3 className="text-xl font-semibold text-text-light mb-1">{pessoa.nome}</h3>
+          <p className="text-text-muted text-sm">Idade: {pessoa.idade} anos</p>
+          <div className="mt-3">
+            {status === 'DESAPARECIDO' ? (
+              <span className="bg-neon-red text-white text-xs font-bold px-3 py-1 rounded-full drop-shadow-[0_0_5px_rgba(229,0,0,0.6)] animate-pulse">
+                Desaparecido
+              </span>
+            ) : (
+              <span className="bg-neon-green text-white text-xs font-bold px-3 py-1 rounded-full drop-shadow-[0_0_5px_rgba(0,204,0,0.6)]">
+                Localizado
+              </span>
+            )}
+          </div>
+          <button className="mt-4 text-neon-red hover:text-neon-red-dark text-sm font-semibold opacity-80 hover:opacity-100 transition-opacity">
+            Ver Detalhes »
+          </button>
+        </div>
+      </Link>
+    </motion.div>
   );
 };
 

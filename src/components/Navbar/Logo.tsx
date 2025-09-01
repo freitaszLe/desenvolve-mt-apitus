@@ -2,21 +2,20 @@ import { Link } from 'react-router-dom';
 
 export const Logo = () => {
   return (
-    <Link to="/" className="flex items-center gap-3 group text-white">
-        <img
+    <Link to="/" className="flex items-center gap-3 group text-text-light">
+    <img
         src="/Logo_pjc-.png"
         alt="Brasão da Polícia Judiciária Civil de MT"
-        className="h-16 w-auto" // ALTERE AQUI de h-12 para h-16
-        />
-      {/* Este div só aparecerá em telas pequenas ou maiores (sm:) */}
-      <div className="hidden sm:flex flex-col">
-        <span className="font-bold leading-tight group-hover:text-blue-400 transition-colors">
-          Polícia Judiciária Civil
+        className="h-16 w-auto filter drop-shadow-[0_0_8px_rgba(229,0,0,0.4)]" // Sombra vermelha
+    />
+    <div className="hidden sm:flex flex-col">
+        <span className="font-bold leading-tight group-hover:text-neon-red transition-colors text-xl"> {/* Trocado para neon-red e aumentado */}
+        Polícia Judiciária Civil
         </span>
-        <p className="text-xs text-slate-400 leading-tight">
-          Estado de Mato Grosso
+        <p className="text-sm text-text-muted leading-tight"> {/* Ajustado texto secundário */}
+        Estado de Mato Grosso
         </p>
-      </div>
+    </div>
     </Link>
   );
 };

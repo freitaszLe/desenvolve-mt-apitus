@@ -51,3 +51,18 @@ export const getPessoas = async (filtros: FiltrosBusca): Promise<PaginatedRespon
     }, 700); // Atraso de 0.7 segundos
   });
 };
+
+// Nova função para buscar uma pessoa pelo ID
+export const getPersonById = async (id: number): Promise<Pessoa | undefined> => {
+  console.log(`CHAMANDO MOCK API: getPersonById com o ID: ${id}`);
+
+  // Encontra a pessoa na nossa lista de mock
+  const pessoa = allMockPessoas.find(p => p.id === id);
+
+  return new Promise(resolve => {
+    setTimeout(() => {
+      console.log("MOCK API: Retornando dados da pessoa", pessoa);
+      resolve(pessoa);
+    }, 500); // Meio segundo de atraso para simular a rede
+  });
+};
