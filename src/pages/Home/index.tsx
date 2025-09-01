@@ -57,7 +57,7 @@ const HomePage = () => {
   const paginaAtual = resposta?.number || 0;
   const totalPaginas = resposta?.totalPages || 0;
 
-  // Definindo as "regras" da animação do contêiner aqui
+  // Definindo as "regras" da animação do contêiner 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
