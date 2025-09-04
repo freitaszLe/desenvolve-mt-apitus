@@ -1,16 +1,21 @@
-import { useEffect, useState, useCallback } from 'react';
-import { getPessoas, type Pessoa, type PaginatedResponse, type FiltrosBusca } from '../../services/api';
+import { getPessoas, type Pessoa, type PaginatedResponse, type FiltrosBusca } from '../../services/api.mock';
 import Card from '../../components/Card';
 import Navbar from '../../components/Navbar';
 import Pagination from '../../components/Pagination';
 import HeroSection from '../../components/HeroSection';
 import CardSkeleton from '../../components/CardSkeleton';
 import { motion } from 'framer-motion';
+import { useEffect, useState, useCallback, useMemo } from 'react';
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { loadFull } from "tsparticles";
+import { options } from '../../config/particles-config';
+import AnimatedPage from '../../components/AnimatedPage';
 
 const TAMANHO_DA_PAGINA = 12;
 
 const HomePage = () => {
 
+  const [init, setInit] = useState(false);
   const [pessoasExibidas, setPessoasExibidas] = useState<Pessoa[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +27,14 @@ const HomePage = () => {
     nome: '',
     status: '',
   });
+
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadFull(engine); 
+    }).then(() => {
+      setInit(true);
+    });
+  }, []);
 
   const carregarDados = useCallback(async (paginaParaBuscar: number) => {
     try {
@@ -96,10 +109,21 @@ const HomePage = () => {
     visible: { opacity: 1, transition: { staggerChildren: 0.05 } }
   };
 
+    // Só renderiza a página quando as partículas estiverem prontas
+  if (!init) {
+    return null;
+  }
+
   return (
-    <>
+    
+    <div className="relative min-h-screen">
+        <Particles
+          id="tsparticles"
+          options={options}
+        />
       <Navbar />
-      <main className="container mx-auto p-4 md:p-8">
+      <AnimatedPage>
+      <main className="container mx-auto p-4 md:p-8 relative z-0">
         <HeroSection onSearch={handleSearch} />
         
         <div className="mt-8">
@@ -136,7 +160,8 @@ const HomePage = () => {
           )}
         </div>
       </main>
-    </>
+      </AnimatedPage>
+    </div>
   );
 };
 
