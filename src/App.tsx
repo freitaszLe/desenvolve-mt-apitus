@@ -1,24 +1,33 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 
-// Importa as páginas usando lazy loading
+// Suas páginas importadas com lazy loading
 const HomePage = lazy(() => import('./pages/Home'));
 const DetalhesPage = lazy(() => import('./pages/Detalhes'));
+
+const AppRoutes = () => {
+  const location = useLocation(); // Pega a localização atual para a animação
+
+  return (
+    // O AnimatePresence "observa" as mudanças de rota
+    <AnimatePresence mode="wait">
+      <Suspense fallback={<div className="flex h-screen items-center justify-center">Carregando...</div>}>
+        {/* O 'key' é crucial para o AnimatePresence saber que a página mudou */}
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/pessoa/:id" element={<DetalhesPage />} />
+        </Routes>
+      </Suspense>
+    </AnimatePresence>
+  );
+};
+
 
 function App() {
   return (
     <BrowserRouter>
-      {/* Suspense é necessário para o lazy loading, mostrando um fallback enquanto o componente carrega */}
-      <Suspense fallback={<div>Carregando página...</div>}>
-        <Routes>
-          {/* Rota para a página inicial */}
-          <Route path="/" element={<HomePage />} />
-
-          {/* Rota para a página de detalhes de uma pessoa específica */}
-          {/* O ":id" é um parâmetro dinâmico que vai mudar (ex: /pessoa/1, /pessoa/2) */}
-          <Route path="/pessoa/:id" element={<DetalhesPage />} />
-        </Routes>
-      </Suspense>
+      <AppRoutes />
     </BrowserRouter>
   );
 }
